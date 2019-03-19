@@ -8,6 +8,8 @@ from uuid import uuid4
 # 3rd party modules.
 import flask
 from flask import Flask, jsonify, make_response, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 # Internal modules
 from app.config import AppConfig, status
@@ -17,9 +19,12 @@ from app.error import RequestError
 
 app = Flask(SERVICE_NAME)
 app.config.from_object(AppConfig)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 from app import routes
+from app import models
 
 
 _log = logging.getLogger("RequestLogger")
