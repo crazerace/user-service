@@ -20,6 +20,9 @@ def test_creaate_user():
         assert isinstance(user.password, str) and len(user.password) > 0
         assert isinstance(user.salt, str) and len(user.salt) > 0
 
+        login_res = res.get_json()
+        assert login_res["userId"] == user.id
+
         duplicate = json.dumps(
             {
                 "username": "user1",

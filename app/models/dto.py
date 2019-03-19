@@ -24,3 +24,12 @@ class NewUserRequest:
         ):
             raise BadRequestError("Incorrect field types")
         return cls(username=username, password=password, rep_password=rep_password)
+
+
+@dataclass
+class LoginResponse:
+    user_id: str
+    token: str
+
+    def todict(self) -> Dict[str, str]:
+        return {"userId": self.user_id, "token": self.token}
