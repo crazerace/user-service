@@ -11,6 +11,7 @@ from app.config import status
 from app.error import BadRequestError
 from app.instrumentation import trace
 from app.models.dto import NewUserRequest
+from app.service import user_service
 
 
 _log = logging.getLogger(__name__)
@@ -18,9 +19,10 @@ _log = logging.getLogger(__name__)
 
 @trace
 def create_user() -> flask.Response:
-    body = _get_request_body("username", "password")
-    user_req = NewUserRequest.fromdict(body)
-    _log.info(user_req)
+    body = _get_request_body("username", "password", "repPassword")
+    user = NewUserRequest.fromdict(body)
+    _log.info(user)
+    user_service.create_user(user)
     return _create_ok_response()
 
 

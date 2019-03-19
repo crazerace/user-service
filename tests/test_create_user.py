@@ -19,3 +19,19 @@ def test_new_user_not_enough_info():
         req_body = json.dumps({"username": 1, "password": "some-drowssap"})
         res = client.post("/v1/users", data=req_body, content_type=JSON)
         assert res.status_code == status.HTTP_400_BAD_REQUEST
+
+        req_body = json.dumps({"username": "user", "password": "some-drowssap"})
+        res = client.post("/v1/users", data=req_body, content_type=JSON)
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
+
+
+
+def test_invalid_password():
+    with TestEnvironment() as client:
+        req_body = json.dumps({"username": "user", "password": "short", "repPassword": "short"})
+        res = client.post("/v1/users", data=req_body, content_type=JSON)
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
+
+        req_body = json.dumps({"username": "user", "password": "shortest", "repPassword": "tsetrohs"})
+        res = client.post("/v1/users", data=req_body, content_type=JSON)
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
