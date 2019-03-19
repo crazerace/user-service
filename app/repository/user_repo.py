@@ -13,12 +13,14 @@ from .util import handle_error
 _log = logging.getLogger(__name__)
 
 
+@trace
 @handle_error(logger=_log, integrity_error_class=ConflictError)
 def save(user: User) -> None:
     db.session.add(user)
     db.session.commit()
 
 
+@trace
 def find_by_username(username: str) -> Optional[User]:
     return User.query.filter(User.username == username).first()
 
