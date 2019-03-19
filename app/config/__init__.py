@@ -15,6 +15,7 @@ SERVER_NAME: str = f"{SERVICE_NAME}/{SERVICE_VERSION}"
 REQUEST_ID_HEADER: str = "X-Request-ID"
 TEST_MODE: bool = os.getenv("TEST_MODE", "0") == "1"
 DATETIME_FORMAT: str = "%Y-%m-%d %H:%M:%S.%f"
+MIN_PASSWORD_LENGTH: int = 8
 
 
 class AppConfig:

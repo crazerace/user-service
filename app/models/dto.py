@@ -17,6 +17,10 @@ class NewUserRequest:
         username: str = raw["username"]
         password: str = raw["password"]
         rep_password: str = raw["repPassword"]
-        if not (isinstance(username, str) and isinstance(password, str) and isinstance(rep_password, str)):
+        if not (
+            isinstance(username, str)
+            and isinstance(password, str)
+            and isinstance(rep_password, str)
+        ):
             raise BadRequestError("Incorrect field types")
-        return cls(username=password, password=password, rep_password=rep_password)
+        return cls(username=username, password=password, rep_password=rep_password)

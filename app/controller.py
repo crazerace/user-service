@@ -20,9 +20,8 @@ _log = logging.getLogger(__name__)
 @trace
 def create_user() -> flask.Response:
     body = _get_request_body("username", "password", "repPassword")
-    user = NewUserRequest.fromdict(body)
-    _log.info(user)
-    user_service.create_user(user)
+    user_req = NewUserRequest.fromdict(body)
+    user_service.create_user(user_req)
     return _create_ok_response()
 
 
