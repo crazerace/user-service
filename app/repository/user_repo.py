@@ -9,6 +9,7 @@ from app.error import ConflictError
 from app.models import User
 from .util import handle_error
 
+
 _log = logging.getLogger(__name__)
 
 

@@ -17,15 +17,17 @@ def test_creaate_user():
         user = user_repo.find_by_username("user1")
         assert user is not None
         assert user.username == "user1"
+        assert isinstance(user.password, str) and len(user.password) > 0
+        assert isinstance(user.salt, str) and len(user.salt) > 0
 
-        req_body = json.dumps(
+        duplicate = json.dumps(
             {
                 "username": "user1",
                 "password": "other-ok-pwd",
                 "repPassword": "other-ok-pwd",
             }
         )
-        res = client.post("/v1/users", data=req_body, content_type=JSON)
+        res = client.post("/v1/users", data=duplicate, content_type=JSON)
         assert res.status_code == status.HTTP_409_CONFLICT
 
 

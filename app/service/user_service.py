@@ -1,14 +1,23 @@
 # Standard library
+import hashlib
+import hmac
+import secrets
 from uuid import uuid4
 from typing import Tuple
 
+# 3rd party libraries
+from argon2 import PasswordHasher
+
 # Internal modules
-from app.config import MIN_PASSWORD_LENGTH
+from app.config import MIN_PASSWORD_LENGTH, SALT_LENGTH, PASSWORD_PEPPER
 from app.error import BadRequestError
 from app.instrumentation import trace
 from app.models import User
 from app.models.dto import NewUserRequest
 from app.repository import user_repo
+
+
+_password_hasher = PasswordHasher()
 
 
 @trace
@@ -27,7 +36,16 @@ def validate_password(user: NewUserRequest) -> None:
 
 
 def hash_password(password: str) -> Tuple[str, str]:
-    return "", ""
+    password_mac, salt = _salt_password(password)
+    password_hash = _password_hasher.hash(password_mac)
+    return password_hash, salt
+
+
+def _salt_password(password: str) -> Tuple[str, str]:
+    salt = secrets.token_hex(SALT_LENGTH)
+    content = f"{salt}-{password}".encode()
+    password_mac = hmac.new(PASSWORD_PEPPER, content, hashlib.sha256).hexdigest()
+    return password_mac, salt
 
 
 ### Private utility functions ###
