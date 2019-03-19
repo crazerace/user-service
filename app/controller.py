@@ -11,7 +11,7 @@ from app.config import status
 from app.error import BadRequestError
 from app.instrumentation import trace
 from app.models.dto import NewUserRequest
-from app.service import user_service
+from app.service import user_service, health
 
 
 _log = logging.getLogger(__name__)
@@ -27,7 +27,8 @@ def create_user() -> flask.Response:
 
 @trace
 def check_health() -> flask.Response:
-    return _create_ok_response()
+    health_status = health.check()
+    return _create_response(health_status)
 
 
 ### Private utility functions ###
