@@ -1,4 +1,5 @@
 # Standard library
+import logging
 from typing import Any, Dict, Optional
 
 # 3rd party modules
@@ -8,10 +9,24 @@ from flask import jsonify, make_response, request
 # Internal modules
 from app.config import status
 from app.error import BadRequestError
+from app.models.dto import NewUserRequest
+
+
+_log = logging.getLogger(__name__)
+
+
+def create_user() -> flask.Response:
+    body = _get_request_body("username", "password")
+    user_req = NewUserRequest.fromdict(body)
+    _log.info(user_req)
+    return _create_ok_response()
 
 
 def check_health() -> flask.Response:
-    return _create_response({"status": "OK"})
+    return _create_ok_response()
+
+
+### Private utility functions ###
 
 
 def _get_request_body(*required_fields: str) -> Dict[str, Any]:
