@@ -9,12 +9,14 @@ from flask import jsonify, make_response, request
 # Internal modules
 from app.config import status
 from app.error import BadRequestError
+from app.instrumentation import trace
 from app.models.dto import NewUserRequest
 
 
 _log = logging.getLogger(__name__)
 
 
+@trace
 def create_user() -> flask.Response:
     body = _get_request_body("username", "password")
     user_req = NewUserRequest.fromdict(body)
@@ -22,6 +24,7 @@ def create_user() -> flask.Response:
     return _create_ok_response()
 
 
+@trace
 def check_health() -> flask.Response:
     return _create_ok_response()
 
