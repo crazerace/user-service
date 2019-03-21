@@ -2,8 +2,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
-# Internal modules
-from app.error import BadRequestError
+# 3rd party modules
+from crazerace.http.error import BadRequestError
 
 
 @dataclass

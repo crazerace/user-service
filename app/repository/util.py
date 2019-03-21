@@ -5,10 +5,10 @@ from functools import wraps
 
 # 3rd party modules
 from sqlalchemy.exc import IntegrityError
+from crazerace.http.error import DatabaseError
 
 # Internal modules
 from app import db
-from app.error import DatabaseError
 
 
 def handle_error(

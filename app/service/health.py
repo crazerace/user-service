@@ -5,10 +5,10 @@ from typing import Dict, Tuple
 
 # 3rd party modules
 import flask
+from crazerace.http.error import ServiceUnavilableError
 
 # Internal modules
 from app import db
-from app.error import ServiceUnavilableError
 
 
 _log = logging.getLogger(__name__)

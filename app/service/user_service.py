@@ -7,11 +7,12 @@ from typing import Tuple
 
 # 3rd party libraries
 from argon2 import PasswordHasher
+from crazerace import jwt
+from crazerace.http.error import BadRequestError
+from crazerace.http.instrumentation import trace
 
 # Internal modules
-from app.config import MIN_PASSWORD_LENGTH, SALT_LENGTH, PASSWORD_PEPPER
-from app.error import BadRequestError
-from app.instrumentation import trace
+from app.config import MIN_PASSWORD_LENGTH, SALT_LENGTH, PASSWORD_PEPPER, JWT_SECRET
 from app.models import User
 from app.models.dto import NewUserRequest, LoginResponse
 from app.repository import user_repo
@@ -20,13 +21,14 @@ from app.repository import user_repo
 _password_hasher = PasswordHasher()
 
 
-@trace
+@trace("user_service")
 def create_user(req: NewUserRequest) -> LoginResponse:
     validate_password(req)
     password_hash, salt = hash_password(req.password)
     user = User(id=_new_id(), username=req.username, password=password_hash, salt=salt)
     user_repo.save(user)
-    return LoginResponse(user_id=user.id, token="")
+    jwt_token = jwt.create_token(user.id, "USER", JWT_SECRET)
+    return LoginResponse(user_id=user.id, token=jwt_token)
 
 
 def validate_password(user: NewUserRequest) -> None:

@@ -1,6 +1,3 @@
-# Standard library
-from typing import Any, Dict
-
 # 3rd party modules.
 import flask
 

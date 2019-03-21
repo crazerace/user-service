@@ -1,9 +1,13 @@
 # Standard library
 import json
 
+# 3rd party modules
+from crazerace import jwt
+from crazerace.http import status
+
 # Intenal modules
-from app.config import status
 from app.repository import user_repo
+from app.config import JWT_SECRET
 from tests import TestEnvironment, JSON
 
 
@@ -22,6 +26,9 @@ def test_creaate_user():
 
         login_res = res.get_json()
         assert login_res["userId"] == user.id
+        token_body = jwt.decode(login_res["token"], JWT_SECRET)
+        assert token_body.subject == user.id
+        assert token_body.role == "USER"
 
         duplicate = json.dumps(
             {

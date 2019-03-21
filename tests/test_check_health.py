@@ -1,5 +1,7 @@
+# 3rd party modules
+from crazerace.http import status
+
 # Intenal modules
-from app.config import status
 from tests import TestEnvironment, JSON
 
 
