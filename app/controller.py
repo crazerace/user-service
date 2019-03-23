@@ -27,6 +27,12 @@ def create_user() -> flask.Response:
 
 
 @trace("controller")
+def delete_user(user_id: str) -> flask.Response:
+    user_service.archive_user(user_id)
+    return http.create_ok_response()
+
+
+@trace("controller")
 def check_health() -> flask.Response:
     health_status = health.check()
     return http.create_response(health_status)

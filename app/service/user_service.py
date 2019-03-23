@@ -31,6 +31,14 @@ def create_user(req: NewUserRequest) -> LoginResponse:
     return LoginResponse(user_id=user.id, token=jwt_token)
 
 
+@trace("user_service")
+def archive_user(id: str) -> None:
+    user = _must_get_user(id)
+    archive_id = f"archived-{user.id}"
+    user_repo.archive(user, archive_id)
+    print(user)
+
+
 def validate_password(user: NewUserRequest) -> None:
     if len(user.password) < MIN_PASSWORD_LENGTH:
         raise BadRequestError("Password too short")
@@ -49,6 +57,13 @@ def _salt_password(password: str) -> Tuple[str, str]:
     content = f"{salt}-{password}".encode()
     password_mac = hmac.new(PASSWORD_PEPPER, content, hashlib.sha256).hexdigest()
     return password_mac, salt
+
+
+def _must_get_user(id: str) -> User:
+    user = user_repo.find(id)
+    if not user or user.archived:
+        raise BadRequestError("No such active user")
+    return user
 
 
 ### Private utility functions ###

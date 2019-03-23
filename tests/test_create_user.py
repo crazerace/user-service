@@ -11,7 +11,7 @@ from app.config import JWT_SECRET
 from tests import TestEnvironment, JSON
 
 
-def test_creaate_user():
+def test_create_user():
     with TestEnvironment() as client:
         req_body = json.dumps(
             {"username": "user1", "password": "valid-pwd", "repPassword": "valid-pwd"}

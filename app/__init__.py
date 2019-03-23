@@ -7,11 +7,12 @@ from uuid import uuid4
 
 # 3rd party modules.
 import flask
+import werkzeug
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from crazerace.http import status, instrumentation
-from crazerace.http.error import RequestError
+from crazerace.http.error import RequestError, NotFoundError
 
 # Internal modules
 from app.config import AppConfig
@@ -64,3 +65,13 @@ def handle_request_error(error: RequestError) -> flask.Response:
         error_log.info(str(error))
     json_error = jsonify(error.asdict())
     return make_response(json_error, error.status())
+
+
+@app.errorhandler(404)
+def handle_not_found(err: werkzeug.exceptions.NotFound) -> flask.Response:
+    """Handles 404 errors.
+
+    :return: flask.Response indicating the encountered error.
+    """
+    error = NotFoundError()
+    return make_response(jsonify(error.asdict()), error.status())
