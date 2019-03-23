@@ -1,5 +1,5 @@
 export DB_USERNAME=userservice
-export DB_PASSWORD=password
+export DB_PASSWORD=d01d846a6d24102a24c4bdb558875f16b70c0e6c
 export DB_HOST=127.0.1
 export DB_PORT=5432
 export DB_DATABASE=userservice
@@ -25,3 +25,6 @@ db-upgrade:
 
 db-downgrade:
 	flask db downgrade
+
+build-image:
+	sh build-image.sh
