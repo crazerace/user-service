@@ -27,6 +27,23 @@ class NewUserRequest:
 
 
 @dataclass
+class LoginRequest:
+    username: str
+    password: str
+
+    @classmethod
+    def fromdict(cls, raw: Dict[str, Any]) -> "LoginRequest":
+        username: str = raw["username"]
+        password: str = raw["password"]
+        if not (
+            isinstance(username, str)
+            and isinstance(password, str)
+        ):
+            raise BadRequestError("Incorrect field types")
+        return cls(username=username, password=password)
+
+
+@dataclass
 class LoginResponse:
     user_id: str
     token: str
