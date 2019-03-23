@@ -19,6 +19,11 @@ def delete_user(user_id: str) -> flask.Response:
     return controller.delete_user(user_id)
 
 
+@app.route("/v1/login", methods=["POST"])
+def login_user() -> flask.Response:
+    return controller.login_user()
+
+
 @app.route("/health", methods=["GET"])
 def check_health() -> flask.Response:
     return controller.check_health()
