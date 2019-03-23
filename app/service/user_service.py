@@ -51,13 +51,9 @@ def validate_password(user: NewUserRequest) -> None:
 
 def verify_password(password: str, user: User) -> None:
     password_mac = _salt_password(password, user.salt)
-    print(user.salt)
-    print(user.password)
-    print(password_mac)
     try:
         _password_hasher.verify(user.password, password_mac)
     except Exception as e:
-        print(type(e))
         _log.info(f"password could not be verified. Error: {str(e)}")
         raise UnauthorizedError("Username and password doesn't match.")
 
