@@ -21,6 +21,8 @@ def test_creaate_user():
         user = user_repo.find_by_username("user1")
         assert user is not None
         assert user.username == "user1"
+        assert not user.archived
+        assert user.archived_at is None
         assert isinstance(user.password, str) and len(user.password) > 0
         assert isinstance(user.salt, str) and len(user.salt) > 0
 
