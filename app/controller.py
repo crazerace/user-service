@@ -28,10 +28,10 @@ def create_user() -> flask.Response:
 
 @trace("controller")
 def login_user() -> flask.Response:
-    body = _get_request_body("username", "password")
+    body = http.get_request_body("username", "password")
     log_req = LoginRequest.fromdict(body)
-    user_service.login_user(log_req)
-    return http._create_ok_response()
+    login_res = user_service.login_user(log_req)
+    return http.create_response(login_res.todict())
 
 
 @trace("controller")

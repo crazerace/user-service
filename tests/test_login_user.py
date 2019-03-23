@@ -11,8 +11,8 @@ from app.config import JWT_SECRET
 from tests import TestEnvironment, JSON
 
 def test_login_user():
-	with TestEnvironment() as client:
-		req_body = json.dumps(
+    with TestEnvironment() as client:
+        req_body = json.dumps(
             {"username": "user1", "password": "valid-pwd", "repPassword": "valid-pwd"}
         )
         res = client.post("/v1/users", data=req_body, content_type=JSON)
@@ -33,8 +33,8 @@ def test_login_user():
 
 
 def test_login_user_incorrect_values():
-	with TestEnvironment() as client:
-		req_body = json.dumps(
+    with TestEnvironment() as client:
+        req_body = json.dumps(
             {"username": "user1", "password": "valid-pwd", "repPassword": "valid-pwd"}
         )
         res = client.post("/v1/users", data=req_body, content_type=JSON)
@@ -54,7 +54,7 @@ def test_login_user_incorrect_values():
             {"username": "user1", "password": 12323445}
         )
         res = client.post("/v1/login", data=req_body, content_type=JSON)
-        assert res.status_code == status.HTTP_400_BADREQUEST
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
 
         #incorrect username
