@@ -7,7 +7,7 @@ import flask
 from flask import jsonify, make_response, request
 from crazerace import http
 from crazerace.http import status
-from crazerace.http.error import BadRequestError
+from crazerace.http.error import BadRequestError, ForbiddenError
 from crazerace.http.instrumentation import trace
 
 # Internal modules
@@ -28,6 +28,7 @@ def create_user() -> flask.Response:
 
 @trace("controller")
 def delete_user(user_id: str) -> flask.Response:
+    _assert_can_modify_user(user_id)
     user_service.archive_user(user_id)
     return http.create_ok_response()
 
@@ -36,3 +37,11 @@ def delete_user(user_id: str) -> flask.Response:
 def check_health() -> flask.Response:
     health_status = health.check()
     return http.create_response(health_status)
+
+
+### Private functions ###
+
+
+def _assert_can_modify_user(user_id: str) -> None:
+    if request.user_id != user_id and request.role != "ADMIN":
+        raise ForbiddenError()

@@ -36,7 +36,6 @@ def archive_user(id: str) -> None:
     user = _must_get_user(id)
     archive_id = f"archived-{user.id}"
     user_repo.archive(user, archive_id)
-    print(user)
 
 
 def validate_password(user: NewUserRequest) -> None:
