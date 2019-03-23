@@ -10,6 +10,7 @@ class User(db.Model):  # type: ignore
     username: str = db.Column(db.String(100), unique=True, nullable=False)
     password: str = db.Column(db.String(100), nullable=False)
     salt: str = db.Column(db.String(100), nullable=False)
+    role: str = db.Column(db.String(20), nullable=False, default="USER")
     archived: bool = db.Column(db.Boolean, nullable=False, default=False)
     created_at: datetime = db.Column(
         db.DateTime, nullable=False, default=datetime.utcnow

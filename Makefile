@@ -4,6 +4,7 @@ export DB_HOST=127.0.1
 export DB_PORT=5432
 export DB_DATABASE=userservice
 export PASSWORD_PEPPER=efd3bf53255162f5b29d794bbc8b6411356c2b91
+export JWT_SECRET=25c2ad79dee6011ceadb01c15e0750581bdb09c5
 
 
 test:

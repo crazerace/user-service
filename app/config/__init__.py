@@ -4,6 +4,7 @@ from logging.config import dictConfig
 
 # Internal modules
 from .logging import LOGGING_CONIFG
+from .util import get_dsn
 
 
 dictConfig(LOGGING_CONIFG)
@@ -21,6 +22,6 @@ JWT_SECRET: str = os.environ["JWT_SECRET"]
 
 
 class AppConfig:
-    SQLALCHEMY_DATABASE_URI: str = "sqlite:///:memory:"
+    SQLALCHEMY_DATABASE_URI: str = get_dsn(TEST_MODE)
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
 

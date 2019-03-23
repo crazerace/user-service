@@ -29,7 +29,7 @@ def create_user(req: NewUserRequest) -> LoginResponse:
     password_hash, salt = hash_password(req.password)
     user = User(id=_new_id(), username=req.username, password=password_hash, salt=salt)
     user_repo.save(user)
-    jwt_token = jwt.create_token(user.id, "USER", JWT_SECRET)
+    jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
     return LoginResponse(user_id=user.id, token=jwt_token)
 
 
@@ -46,7 +46,7 @@ def login_user(req: LoginRequest) -> LoginResponse:
     if not user:
         raise UnauthorizedError("Username and password doesn't match.")
     verify_password(req.password, user)
-    jwt_token = jwt.create_token(user.id, "USER", JWT_SECRET)
+    jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
     return LoginResponse(user_id=user.id, token=jwt_token)
 
 

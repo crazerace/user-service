@@ -23,6 +23,7 @@ def test_create_user():
         assert user.username == "user1"
         assert not user.archived
         assert user.archived_at is None
+        assert user.role == "USER"
         assert isinstance(user.password, str) and len(user.password) > 0
         assert isinstance(user.salt, str) and len(user.salt) > 0
 
