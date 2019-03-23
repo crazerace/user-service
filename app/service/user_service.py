@@ -9,7 +9,7 @@ from typing import Tuple
 # 3rd party libraries
 from argon2 import PasswordHasher
 from crazerace import jwt
-from crazerace.http.error import BadRequestError
+from crazerace.http.error import BadRequestError, UnauthorizedError
 from crazerace.http.instrumentation import trace
 
 # Internal modules
@@ -35,8 +35,8 @@ def create_user(req: NewUserRequest) -> LoginResponse:
 @trace("user_service")
 def login_user(req: LoginRequest) -> LoginResponse:
     user = user_repo.find_by_username(req.username)
-    if user is None:
-        raise BadRequestError("Username and password doesn't match.")
+    if not user:
+        raise UnauthorizedError("Username and password doesn't match.")
     verify_password(req.password, user)
     jwt_token = jwt.create_token(user.id, "USER", JWT_SECRET)
     return LoginResponse(user_id=user.id, token=jwt_token)
@@ -55,7 +55,7 @@ def verify_password(password: str, user: User) -> None:
         _password_hasher.verify(password_mac, user.password)
     except Exception as e:
         _log.info(f"password could not be verified. Error: {e}")
-        raise BadRequestError("Username and password doesn't match.")
+        raise UnauthorizedError("Username and password doesn't match.")
 
 
 def hash_password(password: str) -> Tuple[str, str]:
