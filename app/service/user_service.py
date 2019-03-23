@@ -22,6 +22,7 @@ from app.repository import user_repo
 _password_hasher = PasswordHasher()
 _log = logging.getLogger(__name__)
 
+
 @trace("user_service")
 def create_user(req: NewUserRequest) -> LoginResponse:
     validate_password(req)
@@ -30,6 +31,13 @@ def create_user(req: NewUserRequest) -> LoginResponse:
     user_repo.save(user)
     jwt_token = jwt.create_token(user.id, "USER", JWT_SECRET)
     return LoginResponse(user_id=user.id, token=jwt_token)
+
+
+@trace("user_service")
+def archive_user(id: str) -> None:
+    user = _must_get_user(id)
+    archive_id = f"archived-{user.id}"
+    user_repo.archive(user, archive_id)
 
 
 @trace("user_service")
@@ -68,6 +76,13 @@ def hash_password(password: str) -> Tuple[str, str]:
 def _salt_password(password: str, salt: str) -> str:
     content = f"{salt}-{password}".encode()
     return hmac.new(PASSWORD_PEPPER, content, hashlib.sha256).hexdigest()
+
+
+def _must_get_user(id: str) -> User:
+    user = user_repo.find(id)
+    if not user or user.archived:
+        raise BadRequestError("No such active user")
+    return user
 
 
 ### Private utility functions ###

@@ -1,5 +1,6 @@
 # Standard libraries
 import logging
+from datetime import datetime
 from typing import Optional
 
 # 3rd party libraries
@@ -26,3 +27,18 @@ def save(user: User) -> None:
 def find_by_username(username: str) -> Optional[User]:
     return User.query.filter(User.username == username).first()
 
+
+@trace("user_repo")
+def find(id: str) -> Optional[User]:
+    return User.query.filter(User.id == id).first()
+
+
+@trace("user_repo")
+def archive(user: User, archive_id: str) -> None:
+    user.username = archive_id
+    user.password = ""
+    user.salt = ""
+    user.archived = True
+    user.archived_at = datetime.utcnow()
+    db.session.flush()
+    db.session.commit()
