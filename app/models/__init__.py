@@ -6,6 +6,7 @@ from app import db
 
 
 class User(db.Model):  # type: ignore
+    __tablename__ = "user_account"
     id: str = db.Column(db.String(50), primary_key=True)
     username: str = db.Column(db.String(100), unique=True, nullable=False)
     password: str = db.Column(db.String(100), nullable=False)
