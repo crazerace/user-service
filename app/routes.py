@@ -19,6 +19,12 @@ def delete_user(user_id: str) -> flask.Response:
     return controller.delete_user(user_id)
 
 
+@app.route("/v1/users", methods=["GET"])
+@secured(secret=JWT_SECRET, roles=["USER", "ADMIN"])
+def search_for_users() -> flask.Response:
+    return controller.search_for_users()
+
+
 @app.route("/v1/login", methods=["POST"])
 def login_user() -> flask.Response:
     return controller.login_user()

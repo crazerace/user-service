@@ -41,6 +41,13 @@ def login_user() -> flask.Response:
     return http.create_response(login_res.todict())
 
 
+@trace("controller")
+def search_for_users() -> flask.Response:
+    query: str = http.get_param("query")
+    search_results = user_service.search_for_users(query)
+    return http.create_response(search_results.todict())
+
+
 def check_health() -> flask.Response:
     health_status = health.check()
     return http.create_response(health_status)
