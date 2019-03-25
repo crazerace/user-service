@@ -15,7 +15,13 @@ from crazerace.http.instrumentation import trace
 # Internal modules
 from app.config import MIN_PASSWORD_LENGTH, SALT_LENGTH, PASSWORD_PEPPER, JWT_SECRET
 from app.models import User
-from app.models.dto import NewUserRequest, LoginResponse, LoginRequest
+from app.models.dto import (
+    NewUserRequest,
+    LoginResponse,
+    LoginRequest,
+    SearchResponse,
+    UserDTO,
+)
 from app.repository import user_repo
 
 
@@ -48,6 +54,12 @@ def login_user(req: LoginRequest) -> LoginResponse:
     verify_password(req.password, user)
     jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
     return LoginResponse(user_id=user.id, token=jwt_token)
+
+
+@trace("user_service")
+def search_for_users(query: str) -> None:
+    users = user_repo.search_by_username(query)
+    return SearchResponse(results=[_user_to_dto(user) for user in users])
 
 
 def validate_password(user: NewUserRequest) -> None:
@@ -83,6 +95,10 @@ def _must_get_user(id: str) -> User:
     if not user or user.archived:
         raise BadRequestError("No such active user")
     return user
+
+
+def _user_to_dto(user: User) -> UserDTO:
+    return UserDTO(id=user.id, username=user.username, created_at=user.created_at)
 
 
 ### Private utility functions ###
