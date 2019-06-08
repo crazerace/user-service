@@ -11,7 +11,7 @@ dictConfig(LOGGING_CONIFG)
 
 
 SERVICE_NAME: str = "user-service"
-SERVICE_VERSION: str = "0.1"
+SERVICE_VERSION: str = "1.0-RC"
 SERVER_NAME: str = f"{SERVICE_NAME}/{SERVICE_VERSION}"
 TEST_MODE: bool = os.getenv("TEST_MODE", "0") == "1"
 DATETIME_FORMAT: str = "%Y-%m-%d %H:%M:%S.%f"
