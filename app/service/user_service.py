@@ -57,7 +57,7 @@ def login_user(req: LoginRequest) -> LoginResponse:
 
 
 @trace("user_service")
-def search_for_users(query: str) -> None:
+def search_for_users(query: str) -> SearchResponse:
     users = user_repo.search_by_username(query)
     return SearchResponse(results=[_user_to_dto(user) for user in users])
 
