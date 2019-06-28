@@ -9,6 +9,8 @@ RUN rm -rf tests
 
 # Install requirements.
 RUN pip3 install --no-cache-dir -r requirements.txt
+RUN mkdir /tmp/user-service /tmp/user-service/prom-data
+ENV prometheus_multiproc_dir /tmp/user-service/prom-data
 
 # Prepare environment.
 EXPOSE 8080
