@@ -5,6 +5,7 @@ export DB_PORT=5432
 export DB_NAME=directory
 export PASSWORD_PEPPER=secret-password-pepper
 export JWT_SECRET=secret-jwt-key
+export prometheus_multiproc_dir=/tmp/user-service/prom-data
 
 
 test:
