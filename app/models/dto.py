@@ -70,3 +70,9 @@ class SearchResponse:
 
     def todict(self) -> Dict[str, List[Dict[str, str]]]:
         return {"results": [res.todict() for res in self.results]}
+
+
+@dataclass
+class ClientInfo:
+    id: str
+    ip_address: str

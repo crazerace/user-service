@@ -19,6 +19,9 @@ MIN_PASSWORD_LENGTH: int = 8
 SALT_LENGTH: int = 24
 PASSWORD_PEPPER: bytes = os.environ["PASSWORD_PEPPER"].encode()
 JWT_SECRET: str = os.environ["JWT_SECRET"]
+CLIENT_ID_HEADER: str = "X-Client-ID"
+CLIENT_IP_HEADER: str = "X-REAL-IP"
+SEARCH_USER_LIMIT: int = 20
 
 
 class AppConfig:

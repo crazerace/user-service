@@ -11,7 +11,8 @@ from crazerace.http.error import BadRequestError, ForbiddenError
 from crazerace.http.instrumentation import trace
 
 # Internal modules
-from app.models.dto import NewUserRequest, LoginRequest
+from app.config import CLIENT_ID_HEADER, CLIENT_IP_HEADER
+from app.models.dto import NewUserRequest, LoginRequest, ClientInfo
 from app.service import user_service, health
 
 
@@ -22,7 +23,7 @@ _log = logging.getLogger(__name__)
 def create_user() -> flask.Response:
     body = http.get_request_body("username", "password", "repPassword")
     user_req = NewUserRequest.fromdict(body)
-    login_res = user_service.create_user(user_req)
+    login_res = user_service.create_user(user_req, _get_client_info())
     return http.create_response(login_res.todict())
 
 
@@ -37,7 +38,7 @@ def delete_user(user_id: str) -> flask.Response:
 def login_user() -> flask.Response:
     body = http.get_request_body("username", "password")
     log_req = LoginRequest.fromdict(body)
-    login_res = user_service.login_user(log_req)
+    login_res = user_service.login_user(log_req, _get_client_info())
     return http.create_response(login_res.todict())
 
 
@@ -59,3 +60,10 @@ def check_health() -> flask.Response:
 def _assert_can_modify_user(user_id: str) -> None:
     if request.user_id != user_id and request.role != "ADMIN":
         raise ForbiddenError()
+
+
+def _get_client_info() -> ClientInfo:
+    return ClientInfo(
+        id=request.headers.get(CLIENT_ID_HEADER, "NOT_FOUND"),
+        ip_address=request.headers.get(CLIENT_IP_HEADER, request.remote_addr)
+    )

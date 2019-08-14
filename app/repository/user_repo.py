@@ -9,12 +9,12 @@ from crazerace.http.instrumentation import trace
 
 # Internal modules
 from app import db
+from app.config import SEARCH_USER_LIMIT
 from app.models import User
 from .util import handle_error, sanitize_string
 
 
 _log = logging.getLogger(__name__)
-SEARCH_USER_LIMIT: int = 20
 
 
 @trace("user_repo")

@@ -21,7 +21,9 @@ from app.models.dto import (
     LoginRequest,
     SearchResponse,
     UserDTO,
+    ClientInfo
 )
+from app.service import auth_log
 from app.repository import user_repo
 
 
@@ -30,12 +32,13 @@ _log = logging.getLogger(__name__)
 
 
 @trace("user_service")
-def create_user(req: NewUserRequest) -> LoginResponse:
+def create_user(req: NewUserRequest, client: ClientInfo) -> LoginResponse:
     validate_password(req)
     password_hash, salt = hash_password(req.password)
     user = User(id=_new_id(), username=req.username, password=password_hash, salt=salt)
     user_repo.save(user)
     jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
+    auth_log.record_signup(user.id, client)
     return LoginResponse(user_id=user.id, token=jwt_token)
 
 
@@ -47,14 +50,18 @@ def archive_user(id: str) -> None:
 
 
 @trace("user_service")
-def login_user(req: LoginRequest) -> LoginResponse:
+def login_user(req: LoginRequest, client: ClientInfo) -> LoginResponse:
     user = user_repo.find_by_username(req.username)
     if not user:
         raise UnauthorizedError("Username and password doesn't match.")
-    verify_password(req.password, user)
-    jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
-    return LoginResponse(user_id=user.id, token=jwt_token)
-
+    try:
+        verify_password(req.password, user)
+        jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
+        auth_log.record_login(user.id, client)
+        return LoginResponse(user_id=user.id, token=jwt_token)
+    except Exception as e:
+        auth_log.record_login(user.id, client, success=False)
+        raise e
 
 @trace("user_service")
 def search_for_users(query: str) -> SearchResponse:

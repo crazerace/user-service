@@ -17,7 +17,11 @@ def test_login_user():
         )
         res = client.post("/v1/users", data=req_body, content_type=JSON)
         assert res.status_code == status.HTTP_200_OK
-
+        auth_events = user_repo.find_by_username("user1").auth_events
+        assert len(auth_events) == 1
+        assert auth_events[0].event_type == "SIGN_UP"
+        assert auth_events[0].succeeded
+        assert _is_ipv4(auth_events[0].ip_address)
 
         req_body = json.dumps(
             {"username": "user1", "password": "valid-pwd"}
@@ -30,6 +34,12 @@ def test_login_user():
         token_body = jwt.decode(login_res["token"], JWT_SECRET)
         assert token_body.subject == user.id
         assert token_body.role == "USER"
+        auth_events = user.auth_events
+        assert len(auth_events) == 2
+        assert auth_events[1].user_id == user.id
+        assert auth_events[1].event_type == "LOGIN"
+        assert auth_events[1].succeeded
+        assert _is_ipv4(auth_events[1].ip_address)
 
 
 def test_login_user_incorrect_values():
@@ -39,7 +49,12 @@ def test_login_user_incorrect_values():
         )
         res = client.post("/v1/users", data=req_body, content_type=JSON)
         assert res.status_code == status.HTTP_200_OK
-
+        user_id = res.get_json()["userId"]
+        auth_events = user_repo.find(user_id).auth_events
+        assert len(auth_events) == 1
+        assert auth_events[0].event_type == "SIGN_UP"
+        assert auth_events[0].succeeded
+        assert _is_ipv4(auth_events[0].ip_address)
 
         # Existing username incorrect pw
         req_body = json.dumps(
@@ -47,7 +62,13 @@ def test_login_user_incorrect_values():
         )
         res = client.post("/v1/login", data=req_body, content_type=JSON)
         assert res.status_code == status.HTTP_401_UNAUTHORIZED
-
+        user = user_repo.find_by_username("user1")
+        auth_events = user.auth_events
+        assert len(auth_events) == 2
+        assert auth_events[1].user_id == user_id
+        assert auth_events[1].event_type == "LOGIN"
+        assert not auth_events[1].succeeded
+        assert _is_ipv4(auth_events[1].ip_address)
 
         #correct username incorrect pw type
         req_body = json.dumps(
@@ -63,3 +84,14 @@ def test_login_user_incorrect_values():
         )
         res = client.post("/v1/login", data=req_body, content_type=JSON)
         assert res.status_code == status.HTTP_401_UNAUTHORIZED
+        assert len(user_repo.find(user_id).auth_events) == 2
+
+
+def _is_ipv4(ip_address: str) -> bool:
+    octets = ip_address.split(".")
+    if len(octets) != 4:
+        return False
+    for octet in [int(o) for o in octets]:
+        if octet < 0 or octet > 255:
+            return False
+    return True
