@@ -12,8 +12,8 @@ from crazerace.http.instrumentation import trace
 
 # Internal modules
 from app.config import CLIENT_ID_HEADER, CLIENT_IP_HEADER
-from app.models.dto import NewUserRequest, LoginRequest, ClientInfo
-from app.service import user_service, health
+from app.models.dto import NewUserRequest, LoginRequest, ClientInfo, RenewRequest
+from app.service import user_service, renewal_service, health
 
 
 _log = logging.getLogger(__name__)
@@ -43,6 +43,14 @@ def login_user() -> flask.Response:
 
 
 @trace("controller")
+def renew_token() -> flask.Response:
+    body = http.get_request_body("userId", "token")
+    renew_request = RenewRequest.fromdict(body)
+    res = renewal_service.renew_token(renew_request, _get_client_info())
+    return http.create_response(res.todict())
+
+
+@trace("controller")
 def search_for_users() -> flask.Response:
     query: str = http.get_param("query")
     search_results = user_service.search_for_users(query)
@@ -65,5 +73,5 @@ def _assert_can_modify_user(user_id: str) -> None:
 def _get_client_info() -> ClientInfo:
     return ClientInfo(
         id=request.headers.get(CLIENT_ID_HEADER, "NOT_FOUND"),
-        ip_address=request.headers.get(CLIENT_IP_HEADER, request.remote_addr)
+        ip_address=request.headers.get(CLIENT_IP_HEADER, request.remote_addr),
     )

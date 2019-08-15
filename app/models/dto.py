@@ -42,6 +42,20 @@ class LoginRequest:
 
 
 @dataclass
+class RenewRequest:
+    user_id: str
+    token: str
+
+    @classmethod
+    def fromdict(cls, raw: Dict[str, Any]) -> "RenewRequest":
+        user_id: str = raw["userId"]
+        token: str = raw["token"]
+        if not (isinstance(user_id, str) and isinstance(token, str)):
+            raise BadRequestError("Incorrect field types")
+        return cls(user_id=user_id, token=token)
+
+
+@dataclass
 class LoginResponse:
     user_id: str
     token: str
