@@ -43,7 +43,7 @@ def test_login_user():
         assert len(user.renew_tokens) == 2
         renew_token = user.renew_tokens[1]
         assert not renew_token.used
-        assert len(renew_token.token) == 100
+        assert len(renew_token.token) == 64
         assert renew_token.user_id == user.id
         assert renew_token.created_at < renew_token.valid_to
 

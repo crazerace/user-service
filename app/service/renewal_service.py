@@ -1,4 +1,6 @@
 # Standard library
+import hashlib
+import hmac
 import secrets
 from datetime import datetime, timedelta
 from typing import Tuple
@@ -17,14 +19,15 @@ from app.repository import renew_token_repo, user_repo
 
 
 @trace("renewal_service")
-def create_token(user_id: str) -> RenewToken:
+def create_token(user_id: str) -> str:
+    raw_token = _generate_token()
     token = RenewToken(
-        token=_generate_token(),
+        token=_hash(raw_token),
         user_id=user_id,
         valid_to=datetime.utcnow() + timedelta(days=365),
     )
     renew_token_repo.save(token)
-    return token
+    return raw_token
 
 
 @trace("renewal_service")
@@ -32,7 +35,7 @@ def renew_token(request: RenewRequest, client: ClientInfo) -> LoginResponse:
     try:
         user, token = _find_user_and_token(request)
         _set_token_as_used(token)
-        renew_token = create_token(user.id).token
+        renew_token = create_token(user.id)
         jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
         auth_log.record_renewal(user.id, client)
         return LoginResponse(user_id=user.id, token=jwt_token, renew_token=renew_token)
@@ -45,7 +48,7 @@ def _find_user_and_token(request: RenewRequest) -> Tuple[User, RenewToken]:
     user = user_repo.find(request.user_id)
     if not user:
         raise UnauthorizedError()
-    token = renew_token_repo.find_active(request.user_id, request.token)
+    token = renew_token_repo.find_active(request.user_id, _hash(request.token))
     if not token:
         raise UnauthorizedError()
     return user, token
@@ -59,3 +62,7 @@ def _set_token_as_used(token: RenewToken) -> None:
 
 def _generate_token() -> str:
     return secrets.token_hex(RENEWAL_TOKEN_LENGTH)
+
+
+def _hash(token: str) -> str:
+    return hmac.new(JWT_SECRET.encode(), token.encode(), hashlib.sha256).hexdigest()

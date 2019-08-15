@@ -38,7 +38,7 @@ def create_user(req: NewUserRequest, client: ClientInfo) -> LoginResponse:
     user = User(id=_new_id(), username=req.username, password=password_hash, salt=salt)
     user_repo.save(user)
     jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
-    renew_token = renewal_service.create_token(user.id).token
+    renew_token = renewal_service.create_token(user.id)
     auth_log.record_signup(user.id, client)
     return LoginResponse(user_id=user.id, token=jwt_token, renew_token=renew_token)
 
@@ -58,7 +58,7 @@ def login_user(req: LoginRequest, client: ClientInfo) -> LoginResponse:
     try:
         verify_password(req.password, user)
         jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
-        renew_token = renewal_service.create_token(user.id).token
+        renew_token = renewal_service.create_token(user.id)
         auth_log.record_login(user.id, client)
         return LoginResponse(user_id=user.id, token=jwt_token, renew_token=renew_token)
     except Exception as e:

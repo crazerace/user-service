@@ -1,4 +1,6 @@
 # Standard library
+import hashlib
+import hmac
 import json
 
 # 3rd party modules
@@ -24,7 +26,7 @@ def test_renew_token():
         assert user.id == user_id
         assert len(user.renew_tokens) == 1
         assert not user.renew_tokens[0].used
-        assert user.renew_tokens[0].token == first_renew_token
+        _assert_renew_token(first_renew_token, user.renew_tokens[0].token)
         assert len(user.auth_events) == 1
         assert user.auth_events[0].event_type == "SIGN_UP"
 
@@ -38,7 +40,7 @@ def test_renew_token():
         assert len(user.renew_tokens) == 2
         assert user.renew_tokens[0].used
         assert not user.renew_tokens[1].used
-        assert user.renew_tokens[1].token == second_renew_token
+        _assert_renew_token(second_renew_token, user.renew_tokens[1].token)
         assert len(user.auth_events) == 2
         assert user.auth_events[1].succeeded
         assert user.auth_events[1].event_type == "RENEW"
@@ -49,3 +51,11 @@ def test_renew_token():
         assert len(user.auth_events) == 3
         assert not user.auth_events[2].succeeded
         assert user.auth_events[2].event_type == "RENEW"
+
+
+def _assert_renew_token(raw: str, stored: str) -> None:
+    assert len(raw) == 100
+    assert len(stored) == 64
+    assert not stored in raw
+    hashed = hmac.new(JWT_SECRET.encode(), raw.encode(), hashlib.sha256).hexdigest()
+    assert hashed == stored

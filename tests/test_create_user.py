@@ -1,4 +1,6 @@
 # Standard library
+import hashlib
+import hmac
 import json
 
 # 3rd party modules
@@ -29,13 +31,13 @@ def test_create_user():
         assert len(user.renew_tokens) == 1
         renew_token = user.renew_tokens[0]
         assert not renew_token.used
-        assert len(renew_token.token) == 100
+        assert len(renew_token.token) == 64
         assert renew_token.user_id == user.id
         assert renew_token.created_at < renew_token.valid_to
 
         login_res = res.get_json()
         assert login_res["userId"] == user.id
-        assert login_res["renewToken"] == renew_token.token
+        _assert_renew_token(login_res["renewToken"], renew_token.token)
         token_body = jwt.decode(login_res["token"], JWT_SECRET)
         assert token_body.subject == user.id
         assert token_body.role == "USER"
@@ -84,3 +86,11 @@ def test_invalid_password():
         )
         res = client.post("/v1/users", data=req_body, content_type=JSON)
         assert res.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def _assert_renew_token(raw: str, stored: str) -> None:
+    assert len(raw) == 100
+    assert len(stored) == 64
+    assert not stored in raw
+    hashed = hmac.new(JWT_SECRET.encode(), raw.encode(), hashlib.sha256).hexdigest()
+    assert hashed == stored
