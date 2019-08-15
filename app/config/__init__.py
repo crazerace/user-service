@@ -22,6 +22,7 @@ JWT_SECRET: str = os.environ["JWT_SECRET"]
 CLIENT_ID_HEADER: str = "X-Client-ID"
 CLIENT_IP_HEADER: str = "X-REAL-IP"
 SEARCH_USER_LIMIT: int = 20
+RENEWAL_TOKEN_LENGTH: int = 50
 
 
 class AppConfig:

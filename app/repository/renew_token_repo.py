@@ -9,15 +9,15 @@ from crazerace.http.instrumentation import trace
 
 # Internal modules
 from app import db
-from app.models import AuthEvent
+from app.models import RenewToken
 from .util import handle_error
 
 
 _log = logging.getLogger(__name__)
 
 
-@trace("auth_event_repo")
+@trace("renew_token_repo")
 @handle_error(logger=_log, integrity_error_class=ConflictError)
-def save(event: AuthEvent) -> None:
-    db.session.add(event)
+def save(token: RenewToken) -> None:
+    db.session.add(token)
     db.session.commit()

@@ -26,9 +26,16 @@ def test_create_user():
         assert user.role == "USER"
         assert isinstance(user.password, str) and len(user.password) > 0
         assert isinstance(user.salt, str) and len(user.salt) > 0
+        assert len(user.renew_tokens) == 1
+        renew_token = user.renew_tokens[0]
+        assert not renew_token.used
+        assert len(renew_token.token) == 100
+        assert renew_token.user_id == user.id
+        assert renew_token.created_at < renew_token.valid_to
 
         login_res = res.get_json()
         assert login_res["userId"] == user.id
+        assert login_res["renewToken"] == renew_token.token
         token_body = jwt.decode(login_res["token"], JWT_SECRET)
         assert token_body.subject == user.id
         assert token_body.role == "USER"
@@ -42,6 +49,7 @@ def test_create_user():
         )
         res = client.post("/v1/users", data=duplicate, content_type=JSON)
         assert res.status_code == status.HTTP_409_CONFLICT
+        assert len(user_repo.find_by_username("user1").renew_tokens) == 1
 
 
 def test_new_user_not_enough_info():

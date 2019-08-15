@@ -21,9 +21,9 @@ from app.models.dto import (
     LoginRequest,
     SearchResponse,
     UserDTO,
-    ClientInfo
+    ClientInfo,
 )
-from app.service import auth_log
+from app.service import auth_log, renewal_service
 from app.repository import user_repo
 
 
@@ -38,8 +38,9 @@ def create_user(req: NewUserRequest, client: ClientInfo) -> LoginResponse:
     user = User(id=_new_id(), username=req.username, password=password_hash, salt=salt)
     user_repo.save(user)
     jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
+    renew_token = renewal_service.create_token(user.id).token
     auth_log.record_signup(user.id, client)
-    return LoginResponse(user_id=user.id, token=jwt_token)
+    return LoginResponse(user_id=user.id, token=jwt_token, renew_token=renew_token)
 
 
 @trace("user_service")
@@ -57,11 +58,13 @@ def login_user(req: LoginRequest, client: ClientInfo) -> LoginResponse:
     try:
         verify_password(req.password, user)
         jwt_token = jwt.create_token(user.id, user.role, JWT_SECRET)
+        renew_token = renewal_service.create_token(user.id).token
         auth_log.record_login(user.id, client)
-        return LoginResponse(user_id=user.id, token=jwt_token)
+        return LoginResponse(user_id=user.id, token=jwt_token, renew_token=renew_token)
     except Exception as e:
         auth_log.record_login(user.id, client, success=False)
         raise e
+
 
 @trace("user_service")
 def search_for_users(query: str) -> SearchResponse:

@@ -45,9 +45,14 @@ class LoginRequest:
 class LoginResponse:
     user_id: str
     token: str
+    renew_token: str
 
     def todict(self) -> Dict[str, str]:
-        return {"userId": self.user_id, "token": self.token}
+        return {
+            "userId": self.user_id,
+            "token": self.token,
+            "renewToken": self.renew_token,
+        }
 
 
 @dataclass
