@@ -13,6 +13,12 @@ def create_user() -> flask.Response:
     return controller.create_user()
 
 
+@app.route("/v1/users/<user_id>", methods=["GET"])
+@secured(secret=JWT_SECRET, roles=["USER", "ADMIN"])
+def get_user(user_id: str) -> flask.Response:
+    return controller.get_user(user_id)
+
+
 @app.route("/v1/users/<user_id>", methods=["DELETE"])
 @secured(secret=JWT_SECRET, roles=["USER", "ADMIN"])
 def delete_user(user_id: str) -> flask.Response:

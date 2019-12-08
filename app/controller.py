@@ -28,6 +28,12 @@ def create_user() -> flask.Response:
 
 
 @trace("controller")
+def get_user(user_id: str) -> flask.Response:
+    user = user_service.get_user(user_id)
+    return http.create_response(user.todict())
+
+
+@trace("controller")
 def delete_user(user_id: str) -> flask.Response:
     _assert_can_modify_user(user_id)
     user_service.archive_user(user_id)

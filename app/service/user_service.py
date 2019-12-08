@@ -4,12 +4,17 @@ import hmac
 import secrets
 import logging
 from uuid import uuid4
-from typing import Tuple
+from typing import Callable, Tuple
 
 # 3rd party libraries
 from argon2 import PasswordHasher
 from crazerace import jwt
-from crazerace.http.error import BadRequestError, UnauthorizedError
+from crazerace.http.error import (
+    RequestError,
+    BadRequestError,
+    UnauthorizedError,
+    NotFoundError,
+)
 from crazerace.http.instrumentation import trace
 
 # Internal modules
@@ -41,6 +46,12 @@ def create_user(req: NewUserRequest, client: ClientInfo) -> LoginResponse:
     renew_token = renewal_service.create_token(user.id)
     auth_log.record_signup(user.id, client)
     return LoginResponse(user_id=user.id, token=jwt_token, renew_token=renew_token)
+
+
+@trace("user_service")
+def get_user(user_id: str) -> UserDTO:
+    user = _must_get_user(user_id, exception=NotFoundError)
+    return _user_to_dto(user)
 
 
 @trace("user_service")
@@ -100,10 +111,12 @@ def _salt_password(password: str, salt: str) -> str:
     return hmac.new(PASSWORD_PEPPER, content, hashlib.sha256).hexdigest()
 
 
-def _must_get_user(id: str) -> User:
+def _must_get_user(
+    id: str, exception: Callable[[str], RequestError] = BadRequestError
+) -> User:
     user = user_repo.find(id)
     if not user or user.archived:
-        raise BadRequestError("No such active user")
+        raise exception("No such active user")
     return user
 
 
